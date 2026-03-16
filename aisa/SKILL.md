@@ -115,7 +115,7 @@ curl -X POST "https://api.aisa.one/apis/v1/twitter/like_tweet_v3" \
   -d '{"user_name":"myaccount","tweet_id":"1234567890"}'
 ```
 
-### Search (Web + Academic)
+### Search (Web + Academic + Perplexity Sonar)
 
 ```bash
 # Web search
@@ -130,6 +130,60 @@ curl -X POST "https://api.aisa.one/apis/v1/scholar/search/scholar?query=transfor
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/smart?query=machine+learning&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
+
+> Note: the older generic `/search/full` and `/search/smart` nodes have been retired. For answer-style web research, use the Perplexity Sonar endpoints below instead.
+
+```bash
+# Perplexity Sonar
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar",
+    "messages": [
+      {"role": "user", "content": "What changed in the AI agent ecosystem this week?"}
+    ]
+  }'
+
+# Perplexity Sonar Pro
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-pro",
+    "messages": [
+      {"role": "user", "content": "Compare the top coding agents and cite the key differences."}
+    ]
+  }'
+
+# Perplexity Sonar Reasoning Pro
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-reasoning-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "user", "content": "Analyze whether vertical AI agents can defend against general copilots."}
+    ]
+  }'
+
+# Perplexity Sonar Deep Research
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-deep-research" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-deep-research",
+    "messages": [
+      {"role": "user", "content": "Create a deep research report on AI coding agents in 2026."}
+    ]
+  }'
+```
+
+Perplexity docs:
+- [Sonar](https://docs.aisa.one/reference/post_perplexity-sonar)
+- [Sonar Pro](https://docs.aisa.one/reference/post_perplexity-sonar-pro)
+- [Sonar Reasoning Pro](https://docs.aisa.one/reference/post_perplexity-sonar-reasoning-pro)
+- [Sonar Deep Research](https://docs.aisa.one/reference/post_perplexity-sonar-deep-research)
 
 ### Financial News
 
@@ -167,6 +221,10 @@ python3 {baseDir}/scripts/aisa_client.py twitter like --username myaccount --twe
 python3 {baseDir}/scripts/aisa_client.py search web --query "latest AI news"
 python3 {baseDir}/scripts/aisa_client.py search scholar --query "LLM research"
 python3 {baseDir}/scripts/aisa_client.py search smart --query "machine learning"
+
+# Sonar endpoints are documented in the dedicated search skill client
+# python3 ../search/scripts/search_client.py sonar --query "latest AI launches"
+# python3 ../search/scripts/search_client.py sonar-pro --query "compare coding agents with citations"
 
 # News
 python3 {baseDir}/scripts/aisa_client.py news --ticker AAPL

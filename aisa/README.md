@@ -143,7 +143,7 @@ curl -X POST "https://api.aisa.one/apis/v1/twitter/send_tweet_v3" \
   -d '{"user_name":"myaccount","text":"Hello from OpenClaw Starter Kit!"}'
 ```
 
-### Web & Scholar Search
+### Web, Scholar, & Perplexity Sonar Search
 
 ```bash
 # Web search
@@ -153,6 +153,58 @@ curl -X POST "https://api.aisa.one/apis/v1/scholar/search/web?query=AI+framework
 # Academic papers
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/scholar?query=transformer+models&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
+
+# Hybrid scholar search
+curl -X POST "https://api.aisa.one/apis/v1/scholar/search/smart?query=machine+learning&max_num_results=10" \
+  -H "Authorization: Bearer $AISA_API_KEY"
+```
+
+> Note: the older generic `/search/full` and `/search/smart` nodes have been retired. For answer-style web research, use the Perplexity Sonar family.
+
+```bash
+# Perplexity Sonar
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar",
+    "messages": [
+      {"role": "user", "content": "What changed in the AI agent ecosystem this week?"}
+    ]
+  }'
+
+# Perplexity Sonar Pro
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-pro",
+    "messages": [
+      {"role": "user", "content": "Compare the top coding agents and cite the key differences."}
+    ]
+  }'
+
+# Perplexity Sonar Reasoning Pro
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-reasoning-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "user", "content": "Analyze whether vertical AI agents can defend against general copilots."}
+    ]
+  }'
+
+# Perplexity Sonar Deep Research
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-deep-research" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-deep-research",
+    "messages": [
+      {"role": "user", "content": "Create a deep research report on AI coding agents in 2026."}
+    ]
+  }'
 ```
 
 ### LLM Routing (OpenAI Compatible)
@@ -186,6 +238,12 @@ python scripts/aisa_client.py twitter like --username <u> --tweet-id <id>
 python scripts/aisa_client.py search web --query <query>
 python scripts/aisa_client.py search scholar --query <query>
 python scripts/aisa_client.py search smart --query <query>
+
+# Sonar endpoints are available in the dedicated search skill client
+# python ../search/scripts/search_client.py sonar --query <query>
+# python ../search/scripts/search_client.py sonar-pro --query <query>
+# python ../search/scripts/search_client.py sonar-reasoning-pro --query <query>
+# python ../search/scripts/search_client.py sonar-deep-research --query <query>
 
 # News
 python scripts/aisa_client.py news --ticker AAPL

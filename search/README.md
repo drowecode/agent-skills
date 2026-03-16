@@ -1,42 +1,33 @@
-# OpenClaw Search 🔍
+# OpenClaw Search
 
-Intelligent search for autonomous agents with confidence scoring.
-
-Inspired by [AIsa Verity](https://github.com/AIsa-team/verity) - A next-generation search agent with trust-scored answers.
+Intelligent search for autonomous agents with structured retrieval plus Perplexity Sonar answer endpoints.
 
 ## Features
 
-- **Web Search**: Structured web results
-- **Scholar Search**: Academic paper retrieval
-- **Smart Search**: Intelligent hybrid search
-- **Tavily Integration**: External validation
-- **Verity Mode**: Multi-source search with confidence scoring
+- Web search
+- Scholar search
+- Hybrid scholar search
+- Perplexity Sonar, Sonar Pro, Sonar Reasoning Pro, and Sonar Deep Research
+- Tavily integration
+- Verity-style multi-source retrieval
 
 ## Quick Start
 
 ```bash
 export AISA_API_KEY="your-key"
 
-# Single source search
 python scripts/search_client.py web --query "AI frameworks"
 python scripts/search_client.py scholar --query "transformer models"
-
-# Multi-source with confidence scoring
+python scripts/search_client.py sonar --query "What changed in AI this week?"
+python scripts/search_client.py sonar-pro --query "Compare coding agents with citations"
 python scripts/search_client.py verity --query "Is quantum computing enterprise-ready?"
 ```
 
-## Confidence Scoring
+## Notes
 
-The Verity-style search returns a deterministic confidence score (0-100):
-
-| Score | Level | Meaning |
-|-------|-------|---------|
-| 90-100 | Very High | Strong consensus |
-| 70-89 | High | Good agreement |
-| 50-69 | Medium | Mixed signals |
-| 30-49 | Low | Conflicting sources |
-| 0-29 | Very Low | Insufficient data |
+- Deprecated `/search/full` and `/search/smart` nodes were removed from this skill.
+- Perplexity endpoints are now the recommended answer-generation path.
 
 ## Documentation
 
-See [SKILL.md](SKILL.md) for complete API documentation.
+See [SKILL.md](SKILL.md) for full usage and examples.

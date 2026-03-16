@@ -1,43 +1,41 @@
 ---
 name: openclaw-search
-description: "Intelligent search for agents. Multi-source retrieval with confidence scoring - web, academic, and Tavily in one unified API."
+description: "Intelligent search for agents. Multi-source retrieval across web, scholar, Tavily, and Perplexity Sonar models."
 homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"🔍","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+metadata: {"openclaw":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
 ---
 
-# OpenClaw Search 🔍
+# OpenClaw Search
 
-**Intelligent search for autonomous agents. Powered by AIsa.**
+Intelligent search for autonomous agents, powered by AIsa.
 
-One API key. Multi-source retrieval. Confidence-scored answers.
+One API key gives you:
+- Structured web search
+- Scholar search
+- Hybrid scholar search
+- Tavily search and extraction tools
+- Perplexity Sonar answer-generation endpoints with citations
 
-> Inspired by [AIsa Verity](https://github.com/AIsa-team/verity) - A next-generation search agent with trust-scored answers.
+## What This Skill Is Best For
 
-## 🔥 What Can You Do?
-
-### Research Assistant
-```
-"Search for the latest papers on transformer architectures from 2024-2025"
-```
-
-### Market Research
-```
-"Find all web articles about AI startup funding in Q4 2025"
+### Fast web lookup
+```text
+Search the latest AI infrastructure launches and summarize the top sources.
 ```
 
-### Competitive Analysis
-```
-"Search for reviews and comparisons of RAG frameworks"
-```
-
-### News Aggregation
-```
-"Get the latest news about quantum computing breakthroughs"
+### Scholar-backed research
+```text
+Find recent papers on multimodal reasoning from 2024 onward.
 ```
 
-### Deep Dive Research
+### Citation-rich answers
+```text
+Use Sonar Pro to answer which open-source agent frameworks are gaining traction and cite sources.
 ```
-"Smart search combining web and academic sources on 'autonomous agents'"
+
+### Deep research reports
+```text
+Use Sonar Deep Research to produce a thorough market map of AI browser agents.
 ```
 
 ## Quick Start
@@ -46,304 +44,209 @@ One API key. Multi-source retrieval. Confidence-scored answers.
 export AISA_API_KEY="your-key"
 ```
 
----
-
-## 🏗️ Architecture: Multi-Stage Orchestration
-
-OpenClaw Search employs a **Two-Phase Retrieval Strategy** for comprehensive results:
-
-### Phase 1: Discovery (Parallel Retrieval)
-
-Query 4 distinct search streams simultaneously:
-- **Scholar**: Deep academic retrieval
-- **Web**: Structured web search
-- **Smart**: Intelligent mixed-mode search
-- **Tavily**: External validation signal
-
-### Phase 2: Reasoning (Meta-Analysis)
-
-Use **AIsa Explain** to perform meta-analysis on search results, generating:
-- Confidence scores (0-100)
-- Source agreement analysis
-- Synthesized answers
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      User Query                              │
-└─────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-        ┌─────────┐     ┌─────────┐     ┌─────────┐
-        │ Scholar │     │   Web   │     │  Smart  │
-        └─────────┘     └─────────┘     └─────────┘
-              │               │               │
-              └───────────────┼───────────────┘
-                              ▼
-                    ┌─────────────────┐
-                    │  AIsa Explain   │
-                    │ (Meta-Analysis) │
-                    └─────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │ Confidence Score│
-                    │  + Synthesis    │
-                    └─────────────────┘
-```
-
----
-
-## Core Capabilities
+## Search APIs
 
 ### Web Search
 
 ```bash
-# Basic web search
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/web?query=AI+frameworks&max_num_results=10" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-
-# Full text search (with page content)
-curl -X POST "https://api.aisa.one/apis/v1/search/full?query=latest+AI+news&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
-### Academic/Scholar Search
+### Scholar Search
 
 ```bash
-# Search academic papers
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/scholar?query=transformer+models&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
-# With year filter
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/scholar?query=LLM&max_num_results=10&as_ylo=2024&as_yhi=2025" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
-### Smart Search (Web + Academic Combined)
+### Hybrid Scholar Search
 
 ```bash
-# Intelligent hybrid search
 curl -X POST "https://api.aisa.one/apis/v1/scholar/search/smart?query=machine+learning+optimization&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
-### Tavily Integration (Advanced)
+## Perplexity Sonar APIs
+
+The deprecated `/search/full` and `/search/smart` nodes have been removed from this skill.
+
+The replacement flow is the Perplexity API family:
+
+| Endpoint | Use case |
+|----------|----------|
+| `/perplexity/sonar` | Lightweight, cost-effective search answers with citations |
+| `/perplexity/sonar-pro` | Better for complex queries and multi-step follow-ups |
+| `/perplexity/sonar-reasoning-pro` | Stronger analytical reasoning with web search |
+| `/perplexity/sonar-deep-research` | Exhaustive research and long-form reports |
+
+These descriptions are based on the AIsa docs:
+- [Sonar](https://docs.aisa.one/reference/post_perplexity-sonar)
+- [Sonar Pro](https://docs.aisa.one/reference/post_perplexity-sonar-pro)
+- [Sonar Reasoning Pro](https://docs.aisa.one/reference/post_perplexity-sonar-reasoning-pro)
+- [Sonar Deep Research](https://docs.aisa.one/reference/post_perplexity-sonar-deep-research)
+
+### Sonar
 
 ```bash
-# Tavily search
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar",
+    "messages": [
+      {"role": "user", "content": "What changed in the AI agent ecosystem this week?"}
+    ]
+  }'
+```
+
+### Sonar Pro
+
+```bash
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-pro",
+    "messages": [
+      {"role": "user", "content": "Compare the top browser-use agent frameworks and cite the key differences."}
+    ]
+  }'
+```
+
+### Sonar Reasoning Pro
+
+```bash
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-reasoning-pro" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "user", "content": "Analyze whether small vertical AI agents can defend against general-purpose copilots."}
+    ]
+  }'
+```
+
+### Sonar Deep Research
+
+```bash
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-deep-research" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-deep-research",
+    "messages": [
+      {"role": "user", "content": "Create a deep research report on AI coding agents in 2026, including product categories, pricing, and risks."}
+    ]
+  }'
+```
+
+## Tavily APIs
+
+```bash
 curl -X POST "https://api.aisa.one/apis/v1/tavily/search" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query":"latest AI developments"}'
 
-# Extract content from URLs
 curl -X POST "https://api.aisa.one/apis/v1/tavily/extract" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"urls":["https://example.com/article"]}'
 
-# Crawl web pages
 curl -X POST "https://api.aisa.one/apis/v1/tavily/crawl" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com","max_depth":2}'
 
-# Site map
 curl -X POST "https://api.aisa.one/apis/v1/tavily/map" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com"}'
 ```
 
-### Explain Search Results (Meta-Analysis)
-
-```bash
-# Generate explanations with confidence scoring
-curl -X POST "https://api.aisa.one/apis/v1/scholar/explain" \
-  -H "Authorization: Bearer $AISA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"results":[...],"language":"en","format":"summary"}'
-```
-
----
-
-## 📊 Confidence Scoring Engine
-
-Unlike standard RAG systems, OpenClaw Search evaluates credibility and consensus:
-
-### Scoring Rubric
-
-| Factor | Weight | Description |
-|--------|--------|-------------|
-| **Source Quality** | 40% | Academic > Smart/Web > External |
-| **Agreement Analysis** | 35% | Cross-source consensus checking |
-| **Recency** | 15% | Newer sources weighted higher |
-| **Relevance** | 10% | Query-result semantic match |
-
-### Score Interpretation
-
-| Score | Confidence Level | Meaning |
-|-------|-----------------|---------|
-| 90-100 | Very High | Strong consensus across academic and web sources |
-| 70-89 | High | Good agreement, reliable sources |
-| 50-69 | Medium | Mixed signals, verify independently |
-| 30-49 | Low | Conflicting sources, use caution |
-| 0-29 | Very Low | Insufficient or contradictory data |
-
----
-
 ## Python Client
 
 ```bash
-# Web search
+# Structured search
 python3 {baseDir}/scripts/search_client.py web --query "latest AI news" --count 10
-
-# Academic search
 python3 {baseDir}/scripts/search_client.py scholar --query "transformer architecture" --count 10
-python3 {baseDir}/scripts/search_client.py scholar --query "LLM" --year-from 2024 --year-to 2025
-
-# Smart search (web + academic)
 python3 {baseDir}/scripts/search_client.py smart --query "autonomous agents" --count 10
 
-# Full text search
-python3 {baseDir}/scripts/search_client.py full --query "AI startup funding"
+# Perplexity Sonar family
+python3 {baseDir}/scripts/search_client.py sonar --query "Summarize this week's AI launches"
+python3 {baseDir}/scripts/search_client.py sonar-pro --query "Compare AI agent frameworks with citations"
+python3 {baseDir}/scripts/search_client.py sonar-reasoning-pro --query "Analyze the defensibility of AI copilots"
+python3 {baseDir}/scripts/search_client.py sonar-deep-research --query "Write a deep research report on AI browser agents"
 
-# Tavily operations
+# Optional system instruction
+python3 {baseDir}/scripts/search_client.py sonar-pro \
+  --query "Map the top coding agent products" \
+  --system "Respond in markdown with a short executive summary first."
+
+# Tavily utilities
 python3 {baseDir}/scripts/search_client.py tavily-search --query "AI developments"
 python3 {baseDir}/scripts/search_client.py tavily-extract --urls "https://example.com/article"
 
-# Multi-source search with confidence scoring
+# Multi-source retrieval
 python3 {baseDir}/scripts/search_client.py verity --query "Is quantum computing ready for enterprise?"
 ```
 
----
-
-## API Endpoints Reference
+## API Reference
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/scholar/search/web` | POST | Web search with structured results |
 | `/scholar/search/scholar` | POST | Academic paper search |
-| `/scholar/search/smart` | POST | Intelligent hybrid search |
+| `/scholar/search/smart` | POST | Hybrid scholar search |
 | `/scholar/explain` | POST | Generate result explanations |
-| `/search/full` | POST | Full text search with content |
-| `/search/smart` | POST | Smart web search |
+| `/perplexity/sonar` | POST | Lightweight search answers with citations |
+| `/perplexity/sonar-pro` | POST | Advanced search answers for complex tasks |
+| `/perplexity/sonar-reasoning-pro` | POST | Analytical reasoning with web search |
+| `/perplexity/sonar-deep-research` | POST | Exhaustive research reports |
 | `/tavily/search` | POST | Tavily search integration |
 | `/tavily/extract` | POST | Extract content from URLs |
 | `/tavily/crawl` | POST | Crawl web pages |
 | `/tavily/map` | POST | Generate site maps |
 
----
+## Parameters
 
-## Search Parameters
+### Scholar search query parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| query | string | Search query (required) |
-| max_num_results | integer | Max results (1-100, default 10) |
-| as_ylo | integer | Year lower bound (scholar only) |
-| as_yhi | integer | Year upper bound (scholar only) |
+| `query` | string | Search query |
+| `max_num_results` | integer | Max results (default 10) |
+| `as_ylo` | integer | Year lower bound |
+| `as_yhi` | integer | Year upper bound |
 
----
+### Perplexity request body
 
-## 🚀 Building a Verity-Style Agent
+This skill sends a minimal OpenAI-style payload:
 
-Want to build your own confidence-scored search agent? Here's the pattern:
-
-### 1. Parallel Discovery
-
-```python
-import asyncio
-
-async def discover(query):
-    """Phase 1: Parallel retrieval from multiple sources."""
-    tasks = [
-        search_scholar(query),
-        search_web(query),
-        search_smart(query),
-        search_tavily(query)
-    ]
-    results = await asyncio.gather(*tasks)
-    return {
-        "scholar": results[0],
-        "web": results[1],
-        "smart": results[2],
-        "tavily": results[3]
-    }
+```json
+{
+  "model": "sonar-pro",
+  "messages": [
+    {"role": "system", "content": "Optional system instruction"},
+    {"role": "user", "content": "Your question"}
+  ]
+}
 ```
 
-### 2. Confidence Scoring
+Use `messages` because the AIsa Perplexity endpoints are presented as "Ask AI" endpoints in the official docs. This skill keeps the payload intentionally small for broad compatibility.
 
-```python
-def score_confidence(results):
-    """Calculate deterministic confidence score."""
-    score = 0
-    
-    # Source quality (40%)
-    if results["scholar"]:
-        score += 40 * len(results["scholar"]) / 10
-    
-    # Agreement analysis (35%)
-    claims = extract_claims(results)
-    agreement = analyze_agreement(claims)
-    score += 35 * agreement
-    
-    # Recency (15%)
-    recency = calculate_recency(results)
-    score += 15 * recency
-    
-    # Relevance (10%)
-    relevance = calculate_relevance(results, query)
-    score += 10 * relevance
-    
-    return min(100, score)
-```
+## Notes
 
-### 3. Synthesis
-
-```python
-async def synthesize(query, results, score):
-    """Generate final answer with citations."""
-    explanation = await explain_results(results)
-    return {
-        "answer": explanation["summary"],
-        "confidence": score,
-        "sources": explanation["citations"],
-        "claims": explanation["claims"]
-    }
-```
-
-For a complete implementation, see [AIsa Verity](https://github.com/AIsa-team/verity).
-
----
-
-## Pricing
-
-| API | Cost |
-|-----|------|
-| Web search | ~$0.001 |
-| Scholar search | ~$0.002 |
-| Smart search | ~$0.002 |
-| Tavily search | ~$0.002 |
-| Explain | ~$0.003 |
-
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
----
-
-## Get Started
-
-1. Sign up at [aisa.one](https://aisa.one)
-2. Get your API key
-3. Add credits (pay-as-you-go)
-4. Set environment variable: `export AISA_API_KEY="your-key"`
+- `/search/full` and `/search/smart` are no longer documented here because you indicated those nodes have been retired.
+- The existing scholar and Tavily endpoints remain available.
+- `verity` still focuses on parallel retrieval from scholar, web, hybrid scholar, and Tavily sources.
 
 ## Full API Reference
 
-See [API Reference](https://aisa.mintlify.app/api-reference/introduction) for complete endpoint documentation.
-
-## Resources
-
-- [AIsa Verity](https://github.com/AIsa-team/verity) - Reference implementation of confidence-scored search agent
-- [AIsa Documentation](https://aisa.mintlify.app) - Complete API documentation
+- [AIsa API docs](https://docs.aisa.one/reference/post_perplexity-sonar)
+- [AIsa homepage](https://aisa.one)
