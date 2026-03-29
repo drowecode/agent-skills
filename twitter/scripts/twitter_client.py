@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 """
 OpenClaw Twitter - AIsa API Client
-Twitter/X data and OAuth-based posting for autonomous agents.
+Twitter/X read APIs for autonomous agents.
 
 Read operations use GET with Authorization: Bearer AISA_API_KEY.
-Posting uses OAuth relay: POST /twitter/auth_twitter and /twitter/post_twitter
-OAuth relay POSTs include Authorization: Bearer AISA_API_KEY and also keep
-aisa_api_key in the JSON body for compatibility.
 
 Usage (read):
     python twitter_client.py user-info --username <username>
     python twitter_client.py search --query <query> [--type Latest|Top]
     ...
-
-Usage (OAuth post):
-    python twitter_client.py authorize [--open-browser]
-    python twitter_client.py post --text "Hello" [--media-id <id> ...] [--type <quote|reply>] [--in-reply-to-tweet-id <id>]
-    python twitter_client.py status
 """
 
 import argparse
@@ -58,7 +50,7 @@ class TwitterClient:
         params: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Make an HTTP request to the AIsa API (read + legacy POST patterns)."""
+        """Make an HTTP request to the AIsa API."""
         url = f"{self.BASE_URL}{endpoint}"
 
         if params:
@@ -92,68 +84,6 @@ class TwitterClient:
                 return {"success": False, "error": {"code": str(e.code), "message": error_body}}
         except urllib.error.URLError as e:
             return {"success": False, "error": {"code": "NETWORK_ERROR", "message": str(e.reason)}}
-
-    def _relay_post_json(
-        self, path: str, payload: Dict[str, Any], timeout: int
-    ) -> Dict[str, Any]:
-        """POST JSON to OAuth relay endpoints with Bearer auth and JSON payload."""
-        url = f"{self.BASE_URL}{path}"
-        request = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "User-Agent": "OpenClaw-Twitter/1.0",
-            },
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                raw = response.read().decode("utf-8")
-                return json.loads(raw) if raw else {"code": response.status, "msg": "ok", "data": None}
-        except urllib.error.HTTPError as exc:
-            body = exc.read().decode("utf-8")
-            try:
-                parsed = json.loads(body)
-            except json.JSONDecodeError:
-                parsed = {"code": exc.code, "msg": body or exc.reason, "data": None}
-            return {"ok": False, "status": exc.code, "payload": parsed}
-        except urllib.error.URLError as exc:
-            return {
-                "ok": False,
-                "status": "NETWORK_ERROR",
-                "payload": {"code": 503, "msg": str(exc.reason), "data": None},
-            }
-
-    def relay_authorize(
-        self, timeout: int
-    ) -> Dict[str, Any]:
-        """Request OAuth authorization URL from AIsa relay."""
-        payload: Dict[str, Any] = {"aisa_api_key": self.api_key}
-        return self._relay_post_json("/twitter/auth_twitter", payload, timeout)
-
-    def relay_post(
-        self,
-        text: str,
-        media_ids: Optional[List[str]],
-        timeout: int,
-        parent_tweet_id: Optional[str] = None,
-        post_type: str = "quote",
-    ) -> Dict[str, Any]:
-        """Publish a post via OAuth-backed relay."""
-        payload: Dict[str, Any] = {
-            "aisa_api_key": self.api_key,
-            "content": text,
-            "type": post_type,
-        }
-        if media_ids:
-            payload["media_ids"] = media_ids
-        if parent_tweet_id:
-            parent_key = "in_reply_to_tweet_id" if post_type == "reply" else "quote_tweet_id"
-            payload[parent_key] = parent_tweet_id
-        return self._relay_post_json("/twitter/post_twitter", payload, timeout)
 
     # ==================== User Read APIs ====================
 
@@ -284,207 +214,11 @@ class TwitterClient:
         return self._request("GET", "/twitter/spaces/detail", params={"space_id": space_id})
 
 
-def _relay_timeout() -> int:
-    return int(os.environ.get("TWITTER_RELAY_TIMEOUT", str(DEFAULT_RELAY_TIMEOUT)))
-
-
-def twitter_char_weight(ch: str) -> int:
-    if unicodedata.east_asian_width(ch) in {"W", "F"}:
-        return 2
-    if unicodedata.category(ch).startswith("M"):
-        return 0
-    return 1
-
-
-def twitter_weight_len(text: str) -> int:
-    total = 0
-    idx = 0
-    for matched in URL_PATTERN.finditer(text):
-        start, end = matched.span()
-        while idx < start:
-            total += twitter_char_weight(text[idx])
-            idx += 1
-        total += TWITTER_URL_WEIGHT
-        idx = end
-
-    while idx < len(text):
-        total += twitter_char_weight(text[idx])
-        idx += 1
-    return total
-
-
-def split_by_twitter_weight(text: str, max_len: int) -> List[str]:
-    parts: List[str] = []
-    current = ""
-    for ch in text:
-        candidate = current + ch
-        if twitter_weight_len(candidate) <= max_len:
-            current = candidate
-            continue
-        if current:
-            parts.append(current)
-        current = ch
-    if current:
-        parts.append(current)
-    return parts
-
-
-def split_text_for_twitter(text: str, max_len: int = TWITTER_MAX_WEIGHT) -> List[str]:
-    normalized = text.strip()
-    if not normalized:
-        return []
-    if twitter_weight_len(normalized) <= max_len:
-        return [normalized]
-
-    words = normalized.split()
-    chunks: List[str] = []
-    current = ""
-    for word in words:
-        if twitter_weight_len(word) > max_len:
-            if current:
-                chunks.append(current)
-                current = ""
-            chunks.extend(split_by_twitter_weight(word, max_len))
-            continue
-
-        candidate = word if not current else f"{current} {word}"
-        if twitter_weight_len(candidate) <= max_len:
-            current = candidate
-        else:
-            chunks.append(current)
-            current = word
-
-    if current:
-        chunks.append(current)
-    return chunks
-
-
-def extract_tweet_id(result: Dict[str, Any]) -> Optional[str]:
-    data = result.get("data") if isinstance(result, dict) else None
-    if not isinstance(data, dict):
-        return None
-    tweet_id = data.get("tweet_id")
-    return str(tweet_id) if tweet_id else None
-
-
-def publish_chunks(
-    client: TwitterClient,
-    chunks: List[str],
-    timeout: int,
-    media_ids: Optional[List[str]] = None,
-    initial_parent_tweet_id: Optional[str] = None,
-    post_type: str = "quote",
-) -> Dict[str, Any]:
-    should_thread = len(chunks) > 1
-    previous_tweet_id = initial_parent_tweet_id
-    publish_results = []
-
-    for index, chunk in enumerate(chunks):
-        current_media_ids = media_ids if index == 0 and media_ids else None
-        result = client.relay_post(
-            chunk,
-            current_media_ids,
-            timeout,
-            parent_tweet_id=previous_tweet_id,
-            post_type=post_type,
-        )
-        publish_results.append(
-            {
-                "index": index + 1,
-                "content": chunk,
-                "parent_tweet_id": previous_tweet_id,
-                "result": result,
-            }
-        )
-
-        if result.get("ok") is False or result.get("code") != 200:
-            return {
-                "ok": False,
-                "is_thread": should_thread,
-                "total_chunks": len(chunks),
-                "failed_at_chunk": index + 1,
-                "results": publish_results,
-            }
-
-        latest_tweet_id = extract_tweet_id(result)
-        if not latest_tweet_id:
-            return {
-                "ok": False,
-                "is_thread": should_thread,
-                "total_chunks": len(chunks),
-                "failed_at_chunk": index + 1,
-                "error": "Missing tweet_id in relay response.",
-                "results": publish_results,
-            }
-        previous_tweet_id = latest_tweet_id
-
-    return {
-        "ok": True,
-        "is_thread": should_thread,
-        "total_chunks": len(chunks),
-        "results": publish_results,
-    }
-
-
-def command_authorize(client: TwitterClient, args: argparse.Namespace) -> None:
-    timeout = _relay_timeout()
-    result = client.relay_authorize(timeout)
-
-    if result.get("ok") is False:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
-        sys.exit(1)
-
-    auth_url = (result.get("data") or {}).get("auth_url")
-    output = {
-        "ok": result.get("code") == 200 and bool(auth_url),
-        "authorization_url": auth_url,
-        "raw_response": result,
-    }
-    print(json.dumps(output, indent=2, ensure_ascii=False))
-
-    if output["ok"] and args.open_browser and auth_url:
-        webbrowser.open(auth_url)
-
-    if not output["ok"]:
-        sys.exit(1)
-
-
-def command_post(client: TwitterClient, args: argparse.Namespace) -> None:
-    """Split oversized content locally, then publish chunks through the relay."""
-    timeout = _relay_timeout()
-    chunks = split_text_for_twitter(args.text)
-    if not chunks:
-        print(json.dumps({"ok": False, "error": "Post content must not be empty."}, indent=2, ensure_ascii=False))
-        sys.exit(1)
-    output = publish_chunks(
-        client,
-        chunks,
-        timeout,
-        media_ids=getattr(args, "media_id", None),
-        initial_parent_tweet_id=getattr(args, "in_reply_to_tweet_id", None),
-        post_type=args.post_type,
-    )
-    print(json.dumps(output, indent=2, ensure_ascii=False))
-    if not output["ok"]:
-        sys.exit(1)
-
-
-def command_status(client: TwitterClient, args: argparse.Namespace) -> None:
-    del args
-    response = {
-        "ok": True,
-        "base_url": TwitterClient.BASE_URL,
-        "relay_timeout_seconds": _relay_timeout(),
-        "oauth_endpoints": ["/twitter/auth_twitter", "/twitter/post_twitter"],
-        "note": "OAuth relay POSTs send Authorization: Bearer AISA_API_KEY and also include aisa_api_key in JSON body.",
-    }
-    print(json.dumps(response, indent=2, ensure_ascii=False))
-
 
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="OpenClaw Twitter - Twitter/X data and OAuth posting",
+        description="OpenClaw Twitter - Twitter/X read APIs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
@@ -599,56 +333,11 @@ def main():
     p = subparsers.add_parser("space-detail", help="Get Space detail")
     p.add_argument("--space-id", required=True)
 
-    # ---- OAuth posting (relay) ----
-
-    p = subparsers.add_parser("authorize", help="Request OAuth authorization URL from AIsa")
-    p.add_argument("--open-browser", action="store_true", help="Open the authorization URL")
-    p.set_defaults(_handler="authorize")
-
-    p = subparsers.add_parser("post", help="Publish a post via OAuth-backed relay")
-    p.add_argument("--text", "-t", required=True, help="Post content")
-    p.add_argument(
-        "--media-id",
-        action="append",
-        help="Media ID to attach (repeat for multiple)",
-    )
-    p.add_argument(
-        "--type",
-        dest="post_type",
-        choices=["quote", "reply"],
-        default="quote",
-        help="Relationship used to continue multi-chunk posts. Defaults to quote; use reply for reply-style threading.",
-    )
-    p.add_argument(
-        "--in-reply-to-tweet-id",
-        help="Optional external parent tweet ID. When provided, the first chunk starts from that tweet before continuing the thread.",
-    )
-    p.set_defaults(_handler="post")
-
-    p = subparsers.add_parser("status", help="Show OAuth relay client configuration")
-    p.set_defaults(_handler="status")
-
     args = parser.parse_args()
 
     if not args.command:
         parser.print_help()
         sys.exit(1)
-
-    handler = getattr(args, "_handler", None)
-
-    if handler in ("authorize", "post", "status"):
-        try:
-            client = TwitterClient()
-        except ValueError as e:
-            print(json.dumps({"success": False, "error": {"code": "AUTH_ERROR", "message": str(e)}}))
-            sys.exit(1)
-        if handler == "authorize":
-            command_authorize(client, args)
-        elif handler == "post":
-            command_post(client, args)
-        else:
-            command_status(client, args)
-        return
 
     try:
         client = TwitterClient()
