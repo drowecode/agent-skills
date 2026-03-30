@@ -5,7 +5,7 @@ homepage: https://openclaw.ai
 metadata: {"openclaw":{"emoji":"📈","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
 ---
 
-# OpenClaw Prediction Market 📈
+# Prediction Market Data 📈
 
 **Prediction markets data access for autonomous agents. Powered by AIsa.**
 
