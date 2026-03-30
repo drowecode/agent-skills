@@ -37,7 +37,7 @@ One API key. Full Twitter intelligence.
 
 This file does not define publishing logic.
 
-If the user asks to send, publish, or reply, or quote on X/Twitter, handle that workflow with `./SKILL_POST_TWITTER.md`.
+If the user asks to send, publish, or reply, or quote on X/Twitter, handle that workflow with `./references/post_twitter.md`.
 
 ## Quick Start
 

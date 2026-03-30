@@ -21,7 +21,7 @@ python scripts/twitter_client.py trends
 
 `README.md` only documents read/search capabilities.
 
-If you need to publish, send, or reply on X/Twitter, follow `SKILL_POST_TWITTER.md`.
+If you need to publish, send, or reply on X/Twitter, follow `./references/post_twitter.md`.
 
 ## Features
 
