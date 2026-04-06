@@ -2,11 +2,12 @@
 
 Twitter/X intelligence and automation for autonomous agents. Powered by AIsa.
 
-This skill provides comprehensive capabilities to **read, search, write, and post (text & media)** to Twitter/X.
+This skill provides comprehensive capabilities to **read, search, engage, write, and post (text & media)** on Twitter/X.
 
 ## Features
 
 - **Read & Search**: Access user info, tweets, advanced search, trends, followers, lists, communities, and Spaces without requiring user login.
+- **Engagement via Relay**: Like/unlike tweets and follow/unfollow users through the local OAuth relay service.
 - **Write & Post (OAuth)**: Publish text, images, and videos, create threads, and quote/reply to tweets securely via user OAuth authorization.
 
 ## Installation
@@ -34,7 +35,19 @@ python scripts/twitter_oauth_client.py post --text "Hello from OpenClaw!"
 python scripts/twitter_oauth_client.py post --text "Check out this image" --media-file ./photo.png
 ```
 
-> **Note**: For detailed posting workflows, authorization, and multi-chunk threading, please see [`./references/post_twitter.md`](./references/post_twitter.md).
+### Engagement (Requires OAuth Relay)
+```bash
+# Like the latest tweet from a user
+python scripts/twitter_engagement_client.py like-latest --user "@elonmusk"
+
+# Query recent tweets for indexed follow-up actions
+python scripts/twitter_engagement_client.py list-tweets --user "@elonmusk" --limit 10
+
+# Follow a user
+python scripts/twitter_engagement_client.py follow-user --user "@elonmusk"
+```
+
+> **Note**: For detailed engagement workflows, please see [`./references/engage_twitter.md`](./references/engage_twitter.md). For publishing, authorization, and multi-chunk threading, see [`./references/post_twitter.md`](./references/post_twitter.md).
 
 ## Get API Key
 

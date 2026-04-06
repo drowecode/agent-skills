@@ -33,6 +33,12 @@ One API key. Full Twitter intelligence.
 "Monitor @anthropic and @GoogleAI - alert me on new announcements"
 ```
 
+## Action Workflows
+
+This file does not define like / unlike / follow / unfollow logic directly.
+
+If the user asks to like, unlike, follow, or unfollow on X/Twitter, handle that workflow with `./references/engage_twitter.md`.
+
 ## Posting Workflows
 
 This file does not define publishing logic.
@@ -204,6 +210,13 @@ python3 {baseDir}/scripts/twitter_client.py community-info --community-id 170848
 python3 {baseDir}/scripts/twitter_client.py community-members --community-id 1708485837274263614
 python3 {baseDir}/scripts/twitter_client.py community-tweets --community-id 1708485837274263614
 python3 {baseDir}/scripts/twitter_client.py community-search --query "AI"
+
+# Engagement operations through the local relay
+python3 {baseDir}/scripts/twitter_engagement_client.py list-tweets --user "@elonmusk" --limit 10
+python3 {baseDir}/scripts/twitter_engagement_client.py like-latest --user "@elonmusk"
+python3 {baseDir}/scripts/twitter_engagement_client.py unlike-latest --user "@elonmusk"
+python3 {baseDir}/scripts/twitter_engagement_client.py follow-user --user "@elonmusk"
+python3 {baseDir}/scripts/twitter_engagement_client.py unfollow-user --user "@elonmusk"
 ```
 
 ## API Endpoints Reference
