@@ -24,7 +24,7 @@ from typing import Any, Dict, Optional
 
 
 DEFAULT_TIMEOUT = 30
-DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
+DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1/twitter"
 DEFAULT_CHROME_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -390,7 +390,7 @@ def post_single_tweet(
         parent_key = "in_reply_to_tweet_id" if post_type == "reply" else "quote_tweet_id"
         payload[parent_key] = parent_tweet_id
 
-    endpoint = f"{config['base_url']}/twitter/post_twitter"
+    endpoint = f"{config['base_url']}/post_twitter"
     if media_files:
         return send_multipart_request(
             endpoint,
@@ -457,7 +457,7 @@ def command_authorize(args: argparse.Namespace) -> None:
     config = load_config(args)
     payload = {"aisa_api_key": config["aisa_api_key"]}
     result = send_json_request(
-        f"{config['base_url']}/twitter/auth_twitter",
+        f"{config['base_url']}/auth_twitter",
         payload,
         timeout=config["timeout"],
         aisa_api_key=config["aisa_api_key"],
@@ -542,7 +542,7 @@ def command_status(args: argparse.Namespace) -> None:
         "aisa_api_key": config["aisa_api_key"],
         "timeout": config["timeout"],
         "supported_commands": ["authorize", "post", "status"],
-        "supported_endpoints": ["/twitter/auth_twitter", "/twitter/post_twitter"],
+        "supported_endpoints": ["/auth_twitter", "/post_twitter"],
         "media_upload": {
             "field_name": "media_files",
             "transport": "multipart/form-data",
