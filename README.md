@@ -28,6 +28,16 @@ To explore the individual skill modules, navigate to the `openclaw-skills/` dire
 
 For detailed information on each skill, including its purpose, usage, and API references, please refer to the `README.md` and `SKILL.md` files located within each respective skill directory (e.g., `openclaw-skills/market/README.md`).
 
+## Agent Harness Compatibility
+
+AIsa agent skills are designed for broad compatibility and can be integrated with various agent harnesses, including:
+
+*   **Claude Code**
+*   **OpenClaw**
+*   **Hermes**
+
+This flexibility allows developers to leverage these skills across different agent platforms, ensuring wider applicability and ease of integration.
+
 ## Contribution
 
 We welcome contributions to the `agent-skills` repository. Please refer to the individual skill documentation for guidelines on adding new skills or improving existing ones.
