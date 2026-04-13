@@ -5,7 +5,7 @@ homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"🐦","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# AIsa Twitter 🐦
+# Twitter 🐦
 
 **Twitter/X data access and automation for autonomous agents. Powered by AIsa.**
 
