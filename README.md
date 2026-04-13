@@ -16,7 +16,7 @@ This repository contains **production-ready skills** for autonomous agents power
 
 | Skill | Description | Status |
 |-------|-------------|--------|
-| [**Market**](./market/) | Query real-time and historical financial data across equities and crypto. | ✅ Ready |
+| [**MarketPulse**](./marketpulse/) | Query real-time and historical financial data across equities and crypto. | ✅ Ready |
 | [**Media Gen**](./media-gen/) | Generate images & videos with AIsa. | ✅ Ready |
 | [**Perplexity Search**](./perplexity-search/) | Perplexity Sonar search and answer generation through AIsa. | ✅ Ready |
 | [**Prediction Market Data**](./prediction-market-data/) | Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades. | ✅ Ready |

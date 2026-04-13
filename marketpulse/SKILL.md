@@ -1,11 +1,11 @@
 ---
-name: MarketPulse
+name: marketpulse
 description: "Query real-time and historical financial data across equities and crypto—prices, market moves, metrics, and trends for analysis, alerts, and reporting."
 homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"📊","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# AIsa Market 📊
+# MarketPulse 📊
 
 **Complete market data for autonomous agents. Powered by AIsa.**
 
