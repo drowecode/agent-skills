@@ -1,4 +1,4 @@
-# AIsa Twitter 🐦
+# Twitter 🐦
 
 Twitter/X intelligence and automation for autonomous agents. Powered by AIsa.
 

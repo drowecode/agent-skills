@@ -1,4 +1,4 @@
-# AIsa Twitter Engagement
+# Twitter Engagement
 
 **Like, unlike, follow, and unfollow X/Twitter content through the local relay service.**
 

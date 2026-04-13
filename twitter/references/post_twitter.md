@@ -1,4 +1,4 @@
-# AIsa Twitter OAuth
+# Twitter OAuth
 
 **OAuth-based X/Twitter posting for autonomous agents. Powered by AIsa.**
 
