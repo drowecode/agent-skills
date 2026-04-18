@@ -16,6 +16,7 @@ This repository contains **production-ready skills** for autonomous agents power
 
 | Skill | Description | Status |
 |-------|-------------|--------|
+| [**FinReport**](./finreport/) | Automated investment research reports combining real-time financial data with citation-backed qualitative analysis. | ✅ Ready |
 | [**MarketPulse**](./marketpulse/) | Query real-time and historical financial data across equities and crypto. | ✅ Ready |
 | [**Media Gen**](./media-gen/) | Generate images & videos with AIsa. | ✅ Ready |
 | [**Perplexity Search**](./perplexity-search/) | Perplexity Sonar search and answer generation through AIsa. | ✅ Ready |
