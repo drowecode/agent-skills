@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(///wsl.localhost/Ubuntu/home/daniel/agent-skills/**)",
+      "Read(///wsl.localhost/Ubuntu/home/daniel/agent-skills/finreport/**)",
+      "Bash(mv \"//wsl.localhost/Ubuntu/home/daniel/agent-skills/reports/NVDA_20260418.md\" \"//wsl.localhost/Ubuntu/home/daniel/agent-skills/finreport/reports/NVDA_20260418.md\")",
+      "Read(///wsl.localhost/Ubuntu/home/daniel/agent-skills/finreport/scripts/**)",
+      "Read(///wsl.localhost/Ubuntu/home/daniel/**)"
+    ]
+  }
+}

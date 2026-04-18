@@ -71,7 +71,9 @@ def main() -> None:
     company_name = args.name.strip()
     sector = args.sector.strip()
     today_str = date.today().strftime("%Y%m%d")
-    out_path = args.out or f"reports/{ticker}_{today_str}.md"
+    _script_dir = os.path.dirname(os.path.abspath(__file__))
+    _reports_dir = os.path.normpath(os.path.join(_script_dir, "..", "reports"))
+    out_path = args.out or os.path.join(_reports_dir, f"{ticker}_{today_str}.md")
 
     # ── Phase 1: Market Data ──────────────────────────────────────────────────
     _status(f"Fetching financial data for {ticker}...")
