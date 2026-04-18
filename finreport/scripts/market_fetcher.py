@@ -72,11 +72,6 @@ def _request(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str
     raise RuntimeError("Request failed after retry.")
 
 
-def is_crypto(ticker: str) -> bool:
-    """Return True if ticker is a cryptocurrency (ends with -USD)."""
-    return ticker.upper().endswith("-USD")
-
-
 def get_stock_price(ticker: str) -> Dict[str, Any]:
     """Fetch 30-day daily OHLCV history for an equity ticker."""
     end_date = date.today()
@@ -88,11 +83,6 @@ def get_stock_price(ticker: str) -> Dict[str, Any]:
         "start_date": start_date.strftime("%Y-%m-%d"),
         "end_date": end_date.strftime("%Y-%m-%d"),
     })
-
-
-def get_crypto_snapshot(ticker: str) -> Dict[str, Any]:
-    """Fetch real-time price snapshot for a crypto ticker (e.g. BTC-USD)."""
-    return _request("/financial/crypto/prices/snapshot", params={"ticker": ticker})
 
 
 def get_news(ticker: str, limit: int = 5) -> Dict[str, Any]:

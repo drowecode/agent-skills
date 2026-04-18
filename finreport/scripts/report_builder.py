@@ -82,14 +82,12 @@ def _extract_price_data(price_history: Any) -> Dict[str, str]:
 
     data = price_history.get("data") or price_history
 
-    # Crypto snapshot: single price field
     for price_key in ("price", "last", "close", "current_price", "lastPrice"):
         val = data.get(price_key)
         if val is not None:
             result["current_price"] = _fmt_price(val)
             break
 
-    # OHLCV array (equities and crypto historical)
     bars = _extract_ohlcv_bars(price_history)
     if len(bars) >= 2:
         def _close(bar: Dict[str, Any]) -> Optional[float]:
@@ -383,9 +381,9 @@ def build_report(
     Assemble a markdown investment report from raw API data.
 
     Args:
-        ticker:      Asset ticker (e.g. "NVDA", "BTC-USD")
-        market_data: Dict with keys: price_history, news, and for equities:
-                     financials, sec_filings, insider_trades, analyst_estimates
+        ticker:      Asset ticker (e.g. "NVDA", "TSLA")
+        market_data: Dict with keys: price_history, news, financials,
+                     sec_filings, insider_trades, analyst_estimates
         narrative:   Markdown string from get_market_narrative()
         macro:       Markdown string from get_macro_context()
         risks:       Dict from get_risk_factors() with keys:
@@ -397,7 +395,6 @@ def build_report(
     """
     today = date.today().strftime("%B %d, %Y")
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
-    is_crypto_asset = ticker.upper().endswith("-USD")
 
     # Price data
     price_info = _extract_price_data(market_data.get("price_history") or {})
@@ -408,26 +405,21 @@ def build_report(
     )
 
     # Key metrics table
-    if is_crypto_asset:
-        metrics_section = "_Not applicable for crypto assets._"
-        insider_section = "_Not applicable for crypto assets._"
-        sec_section = "_Not applicable for crypto assets._"
-    else:
-        m = _extract_metrics(
-            market_data.get("financials"),
-            market_data.get("analyst_estimates"),
-        )
-        metrics_section = (
-            "| Metric               | Value            |\n"
-            "|----------------------|------------------|\n"
-            f"| Revenue (TTM)        | {m['revenue_ttm']} |\n"
-            f"| Net Income (TTM)     | {m['net_income_ttm']} |\n"
-            f"| P/E Ratio            | {m['pe_ratio']} |\n"
-            f"| EPS Estimate (Next)  | {m['eps_estimate']} |\n"
-            f"| Forward Revenue Est. | {m['forward_revenue']} |"
-        )
-        insider_section = _format_insider_trades(market_data.get("insider_trades"))
-        sec_section = _format_sec_filings(market_data.get("sec_filings"))
+    m = _extract_metrics(
+        market_data.get("financials"),
+        market_data.get("analyst_estimates"),
+    )
+    metrics_section = (
+        "| Metric               | Value            |\n"
+        "|----------------------|------------------|\n"
+        f"| Revenue (TTM)        | {m['revenue_ttm']} |\n"
+        f"| Net Income (TTM)     | {m['net_income_ttm']} |\n"
+        f"| P/E Ratio            | {m['pe_ratio']} |\n"
+        f"| EPS Estimate (Next)  | {m['eps_estimate']} |\n"
+        f"| Forward Revenue Est. | {m['forward_revenue']} |"
+    )
+    insider_section = _format_insider_trades(market_data.get("insider_trades"))
+    sec_section = _format_sec_filings(market_data.get("sec_filings"))
 
     # News
     news_section = _format_news(market_data.get("news"))

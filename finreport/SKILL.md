@@ -1,6 +1,6 @@
 ---
 name: finreport
-description: "Automated investment research reports combining real-time financial data (MarketPulse) with citation-backed qualitative analysis (Perplexity Sonar). Trigger when asked to research a stock or crypto asset, generate an investment report, or analyze a company's financial health and market narrative in one unified workflow."
+description: "Automated investment research reports combining real-time financial data (MarketPulse) with citation-backed qualitative analysis (Perplexity Sonar). Trigger when asked to research a stock, generate an investment report, or analyze a company's financial health and market narrative in one unified workflow."
 homepage: https://openclaw.ai
 metadata: {"openclaw":{"emoji":"📈","requires":{"bins":["python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
 ---
@@ -43,18 +43,6 @@ python3 scripts/finreport_client.py \
   --name "Tesla Inc." \
   --sector "Consumer Discretionary" \
   --out reports/tesla_deep_dive.md
-
-# Crypto report — Bitcoin
-python3 scripts/finreport_client.py \
-  --ticker BTC-USD \
-  --name "Bitcoin" \
-  --sector "Crypto"
-
-# Crypto report — Ethereum
-python3 scripts/finreport_client.py \
-  --ticker ETH-USD \
-  --name "Ethereum" \
-  --sector "Crypto"
 ```
 
 ---
@@ -104,7 +92,6 @@ Each report contains 6 sections:
 | Data | Endpoint |
 |---|---|
 | Stock OHLCV | `GET /apis/v1/financial/prices` |
-| Crypto price | `GET /apis/v1/financial/crypto/prices/snapshot` |
 | Company news | `GET /apis/v1/financial/news` |
 | Financial statements | `GET /apis/v1/financial/financial_statements/all` |
 | SEC filings | `GET /apis/v1/financial/sec/filings` |

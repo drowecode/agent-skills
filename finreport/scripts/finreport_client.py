@@ -7,7 +7,6 @@ to produce a publication-quality investment research report in one session.
 
 Usage:
   python3 finreport_client.py --ticker NVDA --name "NVIDIA Corporation" --sector "Technology"
-  python3 finreport_client.py --ticker BTC-USD --name "Bitcoin" --sector "Crypto"
   python3 finreport_client.py --ticker TSLA --name "Tesla Inc." --sector "Consumer Discretionary" --out reports/tsla.md
 """
 
@@ -21,13 +20,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from market_fetcher import (
     get_analyst_estimates,
-    get_crypto_snapshot,
     get_financials,
     get_insider_trades,
     get_news,
     get_sec_filings,
     get_stock_price,
-    is_crypto,
 )
 from perplexity_fetcher import get_macro_context, get_market_narrative, get_risk_factors
 from report_builder import build_report
@@ -44,21 +41,20 @@ def _build_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   %(prog)s --ticker NVDA --name "NVIDIA Corporation" --sector "Technology"
-  %(prog)s --ticker BTC-USD --name "Bitcoin" --sector "Crypto"
   %(prog)s --ticker TSLA --name "Tesla Inc." --sector "Consumer Discretionary" --out reports/tsla.md
         """,
     )
     parser.add_argument(
         "--ticker", "-t", required=True,
-        help="Asset ticker symbol (e.g. NVDA, BTC-USD)"
+        help="Asset ticker symbol (e.g. NVDA, TSLA)"
     )
     parser.add_argument(
         "--name", "-n", required=True,
-        help="Company or asset name (e.g. 'NVIDIA Corporation', 'Bitcoin')"
+        help="Company name (e.g. 'NVIDIA Corporation')"
     )
     parser.add_argument(
         "--sector", "-s", required=True,
-        help="Sector for macro analysis (e.g. Technology, Crypto)"
+        help="Sector for macro analysis (e.g. Technology, Consumer Discretionary)"
     )
     parser.add_argument(
         "--out", "-o",
@@ -81,20 +77,14 @@ def main() -> None:
     _status(f"Fetching financial data for {ticker}...")
 
     try:
-        if is_crypto(ticker):
-            market_data = {
-                "price_history": get_crypto_snapshot(ticker),
-                "news": get_news(ticker),
-            }
-        else:
-            market_data = {
-                "price_history": get_stock_price(ticker),
-                "news": get_news(ticker),
-                "financials": get_financials(ticker),
-                "sec_filings": get_sec_filings(ticker),
-                "insider_trades": get_insider_trades(ticker),
-                "analyst_estimates": get_analyst_estimates(ticker),
-            }
+        market_data = {
+            "price_history": get_stock_price(ticker),
+            "news": get_news(ticker),
+            "financials": get_financials(ticker),
+            "sec_filings": get_sec_filings(ticker),
+            "insider_trades": get_insider_trades(ticker),
+            "analyst_estimates": get_analyst_estimates(ticker),
+        }
     except RuntimeError as exc:
         print(f"ERROR fetching market data: {exc}", file=sys.stderr)
         sys.exit(1)

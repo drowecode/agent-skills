@@ -41,25 +41,6 @@ def _mock_perplexity_response(content: str) -> MagicMock:
     })
 
 
-# ── is_crypto ─────────────────────────────────────────────────────────────────
-
-class TestIsCrypto(unittest.TestCase):
-    def test_crypto_returns_true(self):
-        self.assertTrue(market_fetcher.is_crypto("BTC-USD"))
-        self.assertTrue(market_fetcher.is_crypto("ETH-USD"))
-        self.assertTrue(market_fetcher.is_crypto("SOL-USD"))
-
-    def test_case_insensitive(self):
-        self.assertTrue(market_fetcher.is_crypto("btc-usd"))
-        self.assertTrue(market_fetcher.is_crypto("Btc-Usd"))
-
-    def test_equity_returns_false(self):
-        self.assertFalse(market_fetcher.is_crypto("NVDA"))
-        self.assertFalse(market_fetcher.is_crypto("AAPL"))
-        self.assertFalse(market_fetcher.is_crypto("TSLA"))
-        self.assertFalse(market_fetcher.is_crypto("BTC"))  # missing -USD suffix
-
-
 # ── market_fetcher equity ─────────────────────────────────────────────────────
 
 class TestMarketFetcherEquity(unittest.TestCase):
@@ -124,29 +105,6 @@ class TestMarketFetcherEquity(unittest.TestCase):
             ]}}
         )
         result = market_fetcher.get_analyst_estimates("NVDA")
-        self.assertIsInstance(result, dict)
-
-
-# ── market_fetcher crypto ─────────────────────────────────────────────────────
-
-class TestMarketFetcherCrypto(unittest.TestCase):
-    @patch("market_fetcher.urllib.request.urlopen")
-    @patch.dict(os.environ, {"AISA_API_KEY": "test_key"})
-    def test_get_crypto_snapshot_returns_dict(self, mock_urlopen):
-        mock_urlopen.return_value = _mock_response(
-            {"success": True, "data": {"price": 95_000.00, "ticker": "BTC-USD"}}
-        )
-        result = market_fetcher.get_crypto_snapshot("BTC-USD")
-        self.assertIsInstance(result, dict)
-        mock_urlopen.assert_called_once()
-
-    @patch("market_fetcher.urllib.request.urlopen")
-    @patch.dict(os.environ, {"AISA_API_KEY": "test_key"})
-    def test_get_crypto_snapshot_eth(self, mock_urlopen):
-        mock_urlopen.return_value = _mock_response(
-            {"success": True, "data": {"price": 3_200.00, "ticker": "ETH-USD"}}
-        )
-        result = market_fetcher.get_crypto_snapshot("ETH-USD")
         self.assertIsInstance(result, dict)
 
 
@@ -287,15 +245,6 @@ class TestReportBuilder(unittest.TestCase):
     def test_report_contains_news_headline(self):
         report = build_report(self.ticker, self.market_data, self.narrative, self.macro)
         self.assertIn("NVIDIA Reports Record Revenue", report)
-
-    def test_crypto_report_skips_equity_sections(self):
-        crypto_market_data = {
-            "price_history": {"data": {"price": 95_000.00}},
-            "news": {"data": {"news": [{"headline": "BTC Hits New High", "source": "CoinDesk", "date": "2024-01-15"}]}},
-        }
-        report = build_report("BTC-USD", crypto_market_data, self.narrative, self.macro)
-        self.assertIn("Not applicable for crypto assets", report)
-        self.assertIn("## 6. Data Sources", report)
 
     def test_price_calculation(self):
         report = build_report(self.ticker, self.market_data, self.narrative, self.macro)

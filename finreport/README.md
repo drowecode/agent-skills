@@ -1,6 +1,6 @@
 # FinReport
 
-Automated investment research reports combining real-time financial data (MarketPulse) with citation-backed qualitative analysis (Perplexity Sonar). Produces a full markdown report in one agent session — equity or crypto.
+Automated investment research reports combining real-time financial data (MarketPulse) with citation-backed qualitative analysis (Perplexity Sonar). Produces a full markdown report in one agent session.
 
 ---
 
@@ -59,18 +59,6 @@ python3 scripts/finreport_client.py \
   --name "Tesla Inc." \
   --sector "Consumer Discretionary" \
   --out reports/tesla_deep_dive.md
-
-# Crypto report — Bitcoin
-python3 scripts/finreport_client.py \
-  --ticker BTC-USD \
-  --name "Bitcoin" \
-  --sector "Crypto"
-
-# Crypto report — Ethereum
-python3 scripts/finreport_client.py \
-  --ticker ETH-USD \
-  --name "Ethereum" \
-  --sector "Crypto"
 ```
 
 Default output path (no `--out`): `reports/{TICKER}_{YYYYMMDD}.md`
