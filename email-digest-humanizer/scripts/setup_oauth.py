@@ -41,6 +41,15 @@ def is_authenticated() -> bool:
 def get_auth_url() -> str:
     """Return the Google OAuth consent URL. Present this to the user."""
     global _flow
+    if not os.path.exists(CREDS_PATH):
+        raise FileNotFoundError(
+            "credentials.json not found. To set up Gmail access:\n"
+            "1. Go to https://console.cloud.google.com\n"
+            "2. Create a project → Enable Gmail API\n"
+            "3. Create OAuth 2.0 credentials (Desktop App)\n"
+            "4. Download the JSON and save it as 'credentials.json' "
+            "in the email-digest-humanizer/ folder"
+        )
     _flow = Flow.from_client_secrets_file(CREDS_PATH, scopes=SCOPES)
     _flow.redirect_uri = _REDIRECT_URI
     auth_url, _ = _flow.authorization_url(access_type="offline", prompt="consent")

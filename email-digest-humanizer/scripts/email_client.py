@@ -24,9 +24,13 @@ from humanizer_runner import humanize
 from setup_oauth import exchange_code, get_auth_url as _get_auth_url, is_authenticated
 
 
-def get_auth_url() -> str:
-    """Return the Google OAuth consent URL. Agent presents this to the user."""
-    return _get_auth_url()
+def get_auth_url() -> dict:
+    """Return {"url": "..."} or {"error": "..."} if credentials.json is missing."""
+    try:
+        url = _get_auth_url()
+        return {"url": url}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
 
 
 def authorize(code: str) -> dict:
