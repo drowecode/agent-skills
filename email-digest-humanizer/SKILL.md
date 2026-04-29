@@ -1,13 +1,13 @@
 ---
 name: email-digest-humanizer
-description: "Reads unread Gmail inbox via OAuth, groups emails into a digest by sender, drafts AI replies using the full thread as context, runs each draft through the Humanizer skill to strip AI-writing patterns, then sends the humanized reply — threaded correctly using threadId. Trigger when the user asks to check email, draft replies, clear inbox, or respond to messages without manually composing."
+description: "Reads unread inbox via AgentMail (agentmail.to) using a simple API key, groups emails into a digest by sender, drafts AI replies using the full thread as context, runs each draft through the Humanizer skill to strip AI-writing patterns, then sends the humanized reply — threaded correctly. Trigger when the user asks to check email, draft replies, clear inbox, or respond to messages without manually composing."
 homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"📬","requires":{"bins":["python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+metadata: {"aisa":{"emoji":"📬","requires":{"bins":["python3"],"env":["AISA_API_KEY","AGENTMAIL_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
 # Email Digest Humanizer 📬
 
-**OAuth Gmail access, AI-drafted replies, humanizer-polished sends — fully agent-native.**
+**AgentMail-backed inbox access, AI-drafted replies, humanizer-polished sends — fully agent-native.**
 
 ---
 
@@ -16,9 +16,11 @@ metadata: {"aisa":{"emoji":"📬","requires":{"bins":["python3"],"env":["AISA_AP
 ```bash
 cd email-digest-humanizer
 bash setup.sh
+export AGENTMAIL_API_KEY=your_key_here
+export AISA_API_KEY=your_key_here
 ```
 
-Place `credentials.json` (downloaded from Google Cloud Console) in the skill root before first use.
+Get an AgentMail API key at [https://agentmail.to](https://agentmail.to). No OAuth, no consent screen, no `credentials.json`.
 
 ---
 
@@ -26,17 +28,18 @@ Place `credentials.json` (downloaded from Google Cloud Console) in the skill roo
 
 The agent is the sole interface. No CLI, no terminal prompts.
 
-### On first use (not authenticated)
+### On first use (not configured)
 
 ```python
-from scripts.email_client import is_ready, get_auth_url, authorize
+from scripts.email_client import is_ready, get_auth_url
 ```
 
 1. Call `is_ready()` — if `False`, call `get_auth_url()`
-2. Tell the user:
-   > "To connect your Gmail, open this link and paste the code back here: {url}"
-3. When the user pastes the code, call `authorize(code)`
-4. Confirm: "You're connected! Ask me to check your emails anytime."
+2. Tell the user the returned `instructions` string:
+   > "AgentMail uses an API key. Go to https://agentmail.to, create an account, generate an API key, and set `AGENTMAIL_API_KEY` in your environment. Then ask me to check your emails."
+3. Once the env var is set, `is_ready()` returns `True` — no code-pasting step needed.
+
+`authorize(code)` is kept as a no-op for API compatibility.
 
 ---
 
@@ -47,14 +50,14 @@ from scripts.email_client import get_digest
 ```
 
 1. Call `get_digest()`
-2. Display as a numbered list:
+2. Display as a numbered list, sender-grouped:
 
 ```
 📬 You have X unread emails:
 
-1. Karen Sheng — "Re: onboarding" (Apr 22)
-2. Newegg — "Gaming Sale" (Apr 22)
-3. Google Cloud — "Welcome to Free Trial" (Apr 20)
+1. Karen Sheng (1) — "Re: onboarding" (Apr 22)
+2. Newegg (3)      — "Gaming Sale" (Apr 22)
+3. Google Cloud (1) — "Welcome to Free Trial" (Apr 20)
 ```
 
 3. Tell the user: "Reply with a number to expand any email and see a draft reply."
@@ -104,10 +107,10 @@ Always present the draft for review before calling `send`. Never auto-send.
 
 ```python
 from scripts.email_client import (
-    get_auth_url,           # -> str: OAuth consent URL
-    authorize,              # (code: str) -> {"success": True} | {"error": "..."}
-    is_ready,               # -> bool
-    get_digest,             # -> list of email dicts
+    get_auth_url,           # -> {"instructions": "..."}
+    authorize,              # (code: str = "") -> {"success": True, "message": "..."}
+    is_ready,               # -> bool   (True iff AGENTMAIL_API_KEY is set)
+    get_digest,             # -> list of email dicts (grouped by sender, with count)
     get_thread_with_draft,  # (thread_id: str) -> {"thread": [...], "draft": "..."}
     send,                   # (thread_id: str, body: str) -> {"success": True, "message_id": "..."} | {"error": "..."}
 )
@@ -121,7 +124,8 @@ from scripts.email_client import (
   "subject": "Re: onboarding",
   "date": "Apr 22",
   "message_id": "abc123",
-  "thread_id": "xyz789"
+  "thread_id": "xyz789",
+  "count": 1
 }
 ```
 
@@ -152,10 +156,10 @@ from scripts.email_client import (
 
 ## Dependencies
 
+- `AGENTMAIL_API_KEY` — AgentMail API key (inbox access + reply sending)
 - `AISA_API_KEY` — AIsa platform key (AI draft generation + humanizer fallback)
-- `credentials.json` — Google OAuth client secrets (from Google Cloud Console)
 - `python3` 3.8+
-- `google-auth-oauthlib`, `google-api-python-client`, `requests`
+- `agentmail`, `requests`
 - **Humanizer skill** (optional) — [`github.com/blader/humanizer`](https://github.com/blader/humanizer) — if absent, falls back to AIsa API rewrite
 
 ---
@@ -165,7 +169,7 @@ from scripts.email_client import (
 | File | Role |
 |---|---|
 | `scripts/email_client.py` | Agent-facing API — primary entry point |
-| `scripts/setup_oauth.py` | OAuth flow functions (no browser, no prompts) |
-| `scripts/gmail_adapter.py` | Gmail API calls (fetch, thread, send) |
+| `scripts/agentmail_auth.py` | Readiness check (API key presence) and setup instructions |
+| `scripts/agentmail_adapter.py` | AgentMail SDK calls (list digest, fetch thread, reply) |
 | `scripts/draft_engine.py` | Generates draft via AIsa API |
 | `scripts/humanizer_runner.py` | Runs Humanizer skill or AIsa rewrite fallback |

@@ -5,7 +5,7 @@ No terminal interaction, no print statements, no argparse.
 The agent is the interface for all user interaction.
 
 Public API:
-  get_auth_url()                  -> str
+  get_auth_url()                  -> dict
   authorize(code)                 -> dict
   is_ready()                      -> bool
   get_digest()                    -> list
@@ -18,45 +18,42 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from agentmail_adapter import fetch_digest, fetch_thread, send_reply
+from agentmail_auth import get_setup_instructions, is_ready as _is_ready
 from draft_engine import generate_draft
-from gmail_adapter import fetch_digest, fetch_thread, get_service, send_reply
 from humanizer_runner import humanize
-from setup_oauth import exchange_code, get_auth_url as _get_auth_url, is_authenticated
 
 
 def get_auth_url() -> dict:
-    """Return {"url": "..."} or {"error": "..."} if credentials.json is missing."""
-    try:
-        url = _get_auth_url()
-        return {"url": url}
-    except FileNotFoundError as e:
-        return {"error": str(e)}
+    """AgentMail uses API keys — return setup instructions instead of an OAuth URL."""
+    info = get_setup_instructions()
+    return {"instructions": info["instructions"]}
 
 
-def authorize(code: str) -> dict:
-    """Exchange the code the user pasted. Returns {"success": True} or {"error": "..."}"""
-    try:
-        exchange_code(code)
-        return {"success": True}
-    except Exception as exc:
-        return {"error": str(exc)}
+def authorize(code: str = "") -> dict:
+    """No-op for AgentMail. Kept for API compatibility."""
+    return {
+        "success": True,
+        "message": (
+            "AgentMail uses API keys, no OAuth required. "
+            "Set AGENTMAIL_API_KEY and you're ready."
+        ),
+    }
 
 
 def is_ready() -> bool:
-    """Return True if OAuth credentials exist and are valid."""
-    return is_authenticated()
+    """Return True if AGENTMAIL_API_KEY is set."""
+    return _is_ready()
 
 
 def get_digest() -> list:
     """Return list of unread email dicts for the agent to display."""
-    service = get_service()
-    return fetch_digest(service)
+    return fetch_digest()
 
 
 def get_thread_with_draft(thread_id: str) -> dict:
     """Return the full thread messages and a humanized draft reply."""
-    service = get_service()
-    thread = fetch_thread(service, thread_id)
+    thread = fetch_thread(thread_id)
     raw_draft = generate_draft(thread)
     humanized = humanize(raw_draft)
     return {
@@ -68,8 +65,7 @@ def get_thread_with_draft(thread_id: str) -> dict:
 def send(thread_id: str, body: str) -> dict:
     """Send the reply. Returns {"success": True, "message_id": "..."} or {"error": "..."}"""
     try:
-        service = get_service()
-        result = send_reply(service, thread_id, body)
+        result = send_reply(thread_id, body)
         return {"success": True, "message_id": result.get("id", "")}
     except Exception as exc:
         return {"error": str(exc)}
