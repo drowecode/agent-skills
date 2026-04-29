@@ -7,5 +7,13 @@
       "Read(///wsl.localhost/Ubuntu/home/daniel/agent-skills/finreport/scripts/**)",
       "Read(///wsl.localhost/Ubuntu/home/daniel/**)"
     ]
+  },
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "api.agentmail.to",
+        "api.aisa.one"
+      ]
+    }
   }
 }
